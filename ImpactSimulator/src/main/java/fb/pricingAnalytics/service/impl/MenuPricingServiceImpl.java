@@ -16,6 +16,8 @@ import fb.pricingAnalytics.model.vo.StoreDistributionVo;
 import fb.pricingAnalytics.model.vo.StoreTierVo;
 import fb.pricingAnalytics.request.RequestMenuTierPriceUpdate;
 import fb.pricingAnalytics.request.RequestPricePlanner;
+import fb.pricingAnalytics.response.MenuPricingResponse;
+import fb.pricingAnalytics.response.StoreTierResponse;
 import fb.pricingAnalytics.service.MenuPricingService;
 import fb.pricingAnalytics.utils.FBRestResponse;
 
@@ -26,8 +28,15 @@ public class MenuPricingServiceImpl implements MenuPricingService{
 	
 	@Autowired
 	MenuPricingDAO menuPricingDAO;
-	@Override
+	
+	/*@Override
 	public List<MenuPricingVo> getMenuPricing( RequestPricePlanner requestPricePlanner)  throws SQLException,Exception {
+		
+		return menuPricingDAO.getMenuPricing(requestPricePlanner);
+	}*/
+	
+	@Override
+	public MenuPricingResponse getMenuPricing( RequestPricePlanner requestPricePlanner)  throws SQLException,Exception {
 		
 		return menuPricingDAO.getMenuPricing(requestPricePlanner);
 	}
@@ -39,8 +48,13 @@ public class MenuPricingServiceImpl implements MenuPricingService{
 		return menuPricingDAO.updateMenuTierPrice(requestMenuTier,userName);
 	}
 
-	@Override
+	/*@Override
 	public List<StoreTierVo> getStoreTierView(RequestPricePlanner requestPricePlanner) throws SQLException, Exception {
+		return menuPricingDAO.getStoreTierView(requestPricePlanner);
+	}*/
+	
+	@Override
+	public StoreTierResponse getStoreTierView(RequestPricePlanner requestPricePlanner) throws SQLException, Exception {
 		return menuPricingDAO.getStoreTierView(requestPricePlanner);
 	}
 	

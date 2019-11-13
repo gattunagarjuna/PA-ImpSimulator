@@ -26,6 +26,8 @@ import fb.pricingAnalytics.model.vo.StoreDistributionVo;
 import fb.pricingAnalytics.model.vo.StoreTierVo;
 import fb.pricingAnalytics.request.RequestMenuTierPriceUpdate;
 import fb.pricingAnalytics.request.RequestPricePlanner;
+import fb.pricingAnalytics.response.MenuPricingResponse;
+import fb.pricingAnalytics.response.StoreTierResponse;
 import fb.pricingAnalytics.utils.FBRestResponse;
 
 
@@ -36,10 +38,12 @@ public class MenuPricingDAOImpl implements MenuPricingDAO{
 	EntityManager entityManager;
 	
 	
-	@Override 
+	/*@Override 
 	public List<MenuPricingVo> getMenuPricing( RequestPricePlanner requestPricePlanner)  throws SQLException,Exception{
 		StoredProcedureQuery query = entityManager
 				.createStoredProcedureQuery("[Simulator].[dbo].[MenuitemSelectProc]");
+		query.execute();
+		int count = query.getResultList().size();
 		if(requestPricePlanner!=null&&requestPricePlanner.getPaging()!=null){
 			if(requestPricePlanner.getPaging().getPageNo()>0&&requestPricePlanner.getPaging().getPageSize()>0){
 				query.registerStoredProcedureParameter(0, Integer.class , ParameterMode.IN);
@@ -64,8 +68,53 @@ public class MenuPricingDAOImpl implements MenuPricingDAO{
 		}
 		return result;
 	}
+*/
 
+	
+	@Override 
+	public MenuPricingResponse getMenuPricing( RequestPricePlanner requestPricePlanner)  throws SQLException,Exception{
+		
+		MenuPricingResponse response = new MenuPricingResponse();
+		StoredProcedureQuery query = entityManager
+				.createStoredProcedureQuery("[Simulator].[dbo].[MenuitemSelectProc]");
+		query.execute();
+		int count = query.getResultList().size();
+		response.setCount(count);
 
+		if(requestPricePlanner!=null&&requestPricePlanner.getPaging()!=null){
+			if(requestPricePlanner.getPaging().getPageNo()>0&&requestPricePlanner.getPaging().getPageSize()>0){
+				StoredProcedureQuery pagingQuery = entityManager
+						.createStoredProcedureQuery("[Simulator].[dbo].[MenuitemSelectProc]");
+				pagingQuery.registerStoredProcedureParameter(0, Integer.class , ParameterMode.IN);
+				pagingQuery.setParameter(0, (requestPricePlanner.getPaging().getPageNo()-1)* requestPricePlanner.getPaging().getPageSize());
+				pagingQuery.registerStoredProcedureParameter(1, Integer.class , ParameterMode.IN);
+				pagingQuery.setParameter(1, requestPricePlanner.getPaging().getPageSize());
+				pagingQuery.execute();
+				List<Object[]> pagingRows = pagingQuery.getResultList();
+				List<MenuPricingVo> result = new ArrayList<MenuPricingVo>(pagingRows.size());
+				for (Object[] row : pagingRows) {
+				    result.add(new MenuPricingVo((String)row[0],(String)row[1],(String)row[2],(String)row[3],(String)row[4],(String)row[5],(String)row[6],
+				    		(String)row[7],(String)row[8],(Double)row[9],(Double)row[10],(Double)row[11],(BigDecimal)row[12],(Double)row[13],(Double)row[14],
+				    		(Double)row[15],(Double)row[16],(BigInteger)row[17]));
+				}
+				response.setMenuPrice(result);
+				return response;
+			}
+		}
+
+		List<Object[]> rows = query.getResultList();
+		List<MenuPricingVo> result = new ArrayList<MenuPricingVo>(rows.size());
+		for (Object[] row : rows) {
+		    result.add(new MenuPricingVo((String)row[0],(String)row[1],(String)row[2],(String)row[3],(String)row[4],(String)row[5],(String)row[6],
+		    		(String)row[7],(String)row[8],(Double)row[9],(Double)row[10],(Double)row[11],(BigDecimal)row[12],(Double)row[13],(Double)row[14],
+		    		(Double)row[15],(Double)row[16],(BigInteger)row[17]));
+		}
+		response.setMenuPrice(result);
+		return response;
+	}
+
+	
+	
 	@Override
 	public int updateMenuTierPrice(RequestMenuTierPriceUpdate requestMenuTier, String userName) throws SQLException, Exception {
 		StringBuilder sb =  new StringBuilder ("UPDATE ISTProductTierInfo as IST SET IST.price =:price, IST.updatedOn =:lastUpdated_date, IST.updatedBy =:lastUpdated_by WHERE IST.productId =:product_id AND IST.tier =:tier");
@@ -82,7 +131,7 @@ public class MenuPricingDAOImpl implements MenuPricingDAO{
 	}
 
 
-	@Override
+	/*@Override
 	public List<StoreTierVo> getStoreTierView(RequestPricePlanner requestPricePlanner) throws SQLException, Exception {
 		StoredProcedureQuery query = entityManager
 				.createStoredProcedureQuery("[Simulator].[dbo].[StoreTierViewProc]");
@@ -109,7 +158,52 @@ public class MenuPricingDAOImpl implements MenuPricingDAO{
 		    		(Double)row[8],(Double)row[9],(Double)row[10],(BigDecimal)row[11],(BigInteger)row[12]));
 		}
 		return result;
+	}*/
+	
+	
+	@Override
+	public StoreTierResponse getStoreTierView(RequestPricePlanner requestPricePlanner) throws SQLException, Exception {
+		
+		StoreTierResponse response = new StoreTierResponse();
+		StoredProcedureQuery query = entityManager
+				.createStoredProcedureQuery("[Simulator].[dbo].[StoreTierViewProc]");
+		query.execute();
+		int count = query.getResultList().size();
+		response.setCount(count);
+		if(requestPricePlanner!=null&&requestPricePlanner.getPaging()!=null){
+			if(requestPricePlanner.getPaging().getPageNo()>-1 && requestPricePlanner.getPaging().getPageSize()>0){
+				StoredProcedureQuery pagingQuery = entityManager
+						.createStoredProcedureQuery("[Simulator].[dbo].[StoreTierViewProc]");
+				pagingQuery.registerStoredProcedureParameter(0, Integer.class , ParameterMode.IN);
+				pagingQuery.setParameter(0, requestPricePlanner.getPaging().getPageNo());
+				pagingQuery.registerStoredProcedureParameter(1, Integer.class , ParameterMode.IN);
+				pagingQuery.setParameter(1, requestPricePlanner.getPaging().getPageSize());
+				pagingQuery.execute();
+				List<Object[]> pagingRows = pagingQuery.getResultList();
+				
+				List<StoreTierVo> result = new ArrayList<StoreTierVo>(pagingRows.size());
+				for (Object[] row : pagingRows) {
+				    result.add(new StoreTierVo((String)row[0],(String)row[1], (String)row[2],(String)row[3],(String)row[4],(String)row[5],(Integer)row[6],(String)row[7],
+				    		(Double)row[8],(Double)row[9],(Double)row[10],(BigDecimal)row[11],(BigInteger)row[12]));
+				}
+				response.setStoreTier(result);
+				return response;
+			}
+				
+		}
+		
+		query.execute();
+		List<Object[]> rows = query.getResultList();
+		
+		List<StoreTierVo> result = new ArrayList<StoreTierVo>(rows.size());
+		for (Object[] row : rows) {
+		    result.add(new StoreTierVo((String)row[0],(String)row[1], (String)row[2],(String)row[3],(String)row[4],(String)row[5],(Integer)row[6],(String)row[7],
+		    		(Double)row[8],(Double)row[9],(Double)row[10],(BigDecimal)row[11],(BigInteger)row[12]));
+		}
+		return response;
 	}
+	
+	
 
 
 	@Override

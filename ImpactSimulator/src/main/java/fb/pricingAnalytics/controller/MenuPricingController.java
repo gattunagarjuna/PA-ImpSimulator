@@ -59,8 +59,9 @@ public class MenuPricingController {
 		@SuppressWarnings("unchecked")
 		MenuPricingResponse response = new MenuPricingResponse();
 		try {
-			List<MenuPricingVo> list = menuPricingService.getMenuPricing(requestPricePlanner);
-			response.setMenuPrice(list);
+			//List<MenuPricingVo> list = menuPricingService.getMenuPricing(requestPricePlanner);
+			response = menuPricingService.getMenuPricing(requestPricePlanner);
+			//response.setMenuPrice(list);
 		} catch (SQLException e) {
 			logger.error(e.getMessage(), e.fillInStackTrace());
 			e.printStackTrace();
@@ -122,8 +123,9 @@ public class MenuPricingController {
 		@SuppressWarnings("unchecked")
 		StoreTierResponse response = new StoreTierResponse();
 		try {
-			List<StoreTierVo> list = menuPricingService.getStoreTierView(requestPricePlanner);
-			response.setStoreTier(list);
+			//List<StoreTierVo> list = menuPricingService.getStoreTierView(requestPricePlanner);
+			response = menuPricingService.getStoreTierView(requestPricePlanner);
+			//response.setStoreTier(list);
 		} catch (SQLException e) {
 			logger.error(e.getMessage(), e.fillInStackTrace());
 			e.printStackTrace();

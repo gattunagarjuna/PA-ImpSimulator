@@ -11,13 +11,16 @@ import fb.pricingAnalytics.model.vo.StoreDistributionVo;
 import fb.pricingAnalytics.model.vo.StoreTierVo;
 import fb.pricingAnalytics.request.RequestMenuTierPriceUpdate;
 import fb.pricingAnalytics.request.RequestPricePlanner;
+import fb.pricingAnalytics.response.MenuPricingResponse;
+import fb.pricingAnalytics.response.StoreTierResponse;
 import fb.pricingAnalytics.utils.FBRestResponse;
 
 public interface MenuPricingDAO {
 
-	public List<MenuPricingVo> getMenuPricing( RequestPricePlanner requestPricePlanner) throws SQLException,Exception;
+	//public List<MenuPricingVo> getMenuPricing( RequestPricePlanner requestPricePlanner) throws SQLException,Exception;
+	public MenuPricingResponse getMenuPricing( RequestPricePlanner requestPricePlanner) throws SQLException,Exception;
 	public int updateMenuTierPrice(RequestMenuTierPriceUpdate requestMenuTier, String userName) throws SQLException,Exception;
-	public List<StoreTierVo> getStoreTierView(RequestPricePlanner requestPricePlanner) throws SQLException,Exception;
+	public StoreTierResponse getStoreTierView(RequestPricePlanner requestPricePlanner) throws SQLException,Exception;
 	public FBRestResponse updateStoreTier(String proposedTier, Integer storeCode, String userName) throws SQLException,Exception;
 	public List<StoreTierVo> getOtherStoreView(RequestPricePlanner requestPricePlanner) throws SQLException,Exception;
 	public OverAllImpactsVo getOverAllImpacts() throws SQLException,Exception;
