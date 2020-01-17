@@ -824,7 +824,7 @@ public class FBConstants {
 	 public static final String MONTH_CONTAINS_MORETHAN_31_DAYS = "Maximum 31 Days For a Month. So please check your input";
 
 	 public static final String CUSTOM_LOGIN_COOKIE ="customLogin";
-	 public static final String PA_QUEUE ="paqueue-notification-";
+	 public static final String PA_QUEUE ="paqaqueue-notification-";
 	 
 	 // AdLocationId 
 	 public static final int CAROUSEL = 3;
