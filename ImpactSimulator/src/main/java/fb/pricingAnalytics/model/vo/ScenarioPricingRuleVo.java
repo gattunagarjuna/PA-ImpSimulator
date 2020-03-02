@@ -2,18 +2,18 @@ package fb.pricingAnalytics.model.vo;
 
 import java.math.BigInteger;
 
-import fb.pricingAnalytics.request.PricingRuleRequest;
+import fb.pricingAnalytics.request.PricingRule;
 
-public class PricingRuleVo {
+public class ScenarioPricingRuleVo {
 	
 	BigInteger pricingRuleId;
 	BigInteger scenarioId;
 	boolean isApplied;
 	boolean isDeleted;
-	PricingRuleRequest ruleData;
+	PricingRule ruleData;
 	
-	public PricingRuleVo(BigInteger pricingRuleId, BigInteger scenarioId,
-			boolean isApplied, boolean isDeleted, PricingRuleRequest ruleData) {
+	public ScenarioPricingRuleVo(BigInteger pricingRuleId, BigInteger scenarioId,
+			boolean isApplied, boolean isDeleted, PricingRule ruleData) {
 		super();
 		this.pricingRuleId = pricingRuleId;
 		this.scenarioId = scenarioId;
@@ -54,11 +54,11 @@ public class PricingRuleVo {
 		this.isDeleted = isDeleted;
 	}
 
-	public PricingRuleRequest getRuleData() {
+	public PricingRule getRuleData() {
 		return ruleData;
 	}
 
-	public void setRuleData(PricingRuleRequest ruleData) {
+	public void setRuleData(PricingRule ruleData) {
 		this.ruleData = ruleData;
 	}	
 			

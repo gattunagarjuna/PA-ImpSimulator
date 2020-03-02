@@ -17,9 +17,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import fb.pricingAnalytics.model.auth.UserAuth;
-import fb.pricingAnalytics.request.PricingRuleRequest;
+import fb.pricingAnalytics.request.PricingRule;
 import fb.pricingAnalytics.response.MenuPricingResponse;
-import fb.pricingAnalytics.response.PricingRulesResponse;
+import fb.pricingAnalytics.response.ProjectPricingRulesResponse;
+import fb.pricingAnalytics.response.ScenarioPricingRulesResponse;
 import fb.pricingAnalytics.service.PricingRuleService;
 import fb.pricingAnalytics.utils.AuthUtils;
 import fb.pricingAnalytics.utils.FBRestResponse;
@@ -38,7 +39,7 @@ public class PricingRuleController {
 	
 	
 	@RequestMapping(value="/createPricingRule", method = RequestMethod.POST)
-	public ResponseEntity<?> createPricingRule(HttpServletRequest request,@RequestBody PricingRuleRequest pricingRuleRequest) {
+	public ResponseEntity<?> createPricingRule(HttpServletRequest request,@RequestBody PricingRule pricingRuleRequest) {
 
 		logger.debug("PricingRuleController createPricingRule function starts :::");
 		
@@ -85,11 +86,12 @@ public class PricingRuleController {
 	}
 	
 	
-	@RequestMapping(value="/rules/{projectid}",method=RequestMethod.GET)
-	public ResponseEntity<?> getPricingRules(HttpServletRequest request,@PathVariable("projectid") BigInteger projectId){
+	@RequestMapping(value="/rules/{projectid}/{scenarioid}",method=RequestMethod.GET)
+	public ResponseEntity<?> getScenarioPricingRules(HttpServletRequest request,@PathVariable("projectid") BigInteger projectId,
+			@PathVariable("scenarioid") BigInteger scenarioid){
 		
 		logger.debug("PricingRuleController getPricingRules function starts :::");
-		PricingRulesResponse response = new PricingRulesResponse();
+		ScenarioPricingRulesResponse response = new ScenarioPricingRulesResponse();
 		UserAuth userAuth=AuthUtils.getUserAuthData(request);
 		int brandId = Integer.valueOf(userAuth.getBrandId());
 	
@@ -98,14 +100,18 @@ public class PricingRuleController {
 			return new ResponseEntity<FBRestResponse>(new FBRestResponse(false, "ProjectId is required field"),
 				    HttpStatus.BAD_REQUEST);
 		}
+		if(null == scenarioid || scenarioid.intValue()<=0){
+			return new ResponseEntity<FBRestResponse>(new FBRestResponse(false, "ScenarioId is required field"),
+				    HttpStatus.BAD_REQUEST);
+		}
 		try{
-			response = pricingRuleService.getPricingRules(projectId,brandId);
+			response = pricingRuleService.getPricingRulesForScenario(projectId,scenarioid,brandId);
 			if(!response.getSuccessFlag()){
 				return new ResponseEntity<FBRestResponse>(new FBRestResponse(false, "Exception Occured, Please check the log files"),
 					    HttpStatus.INTERNAL_SERVER_ERROR);
 			}else if(response.getPricingRules_Count() == 0){
 				response.setMessage("There are no Rules Created for the associated Project Id");
-				return new ResponseEntity<PricingRulesResponse>(response, HttpStatus.OK);
+				return new ResponseEntity<ScenarioPricingRulesResponse>(response, HttpStatus.OK);
 			}
 			
 		}catch(SQLException e){
@@ -121,6 +127,45 @@ public class PricingRuleController {
 		}
 		return new ResponseEntity<FBRestResponse>(response,HttpStatus.OK);
 		
+	}
+
+	
+	
+	@RequestMapping(value="/rules/{projectid}",method=RequestMethod.GET)
+	public ResponseEntity<?> getPricingRulesForProject(HttpServletRequest request,@PathVariable("projectid") BigInteger projectId){
+		
+		logger.debug("PricingRuleController getPricingRules function starts :::");
+		ProjectPricingRulesResponse response = new ProjectPricingRulesResponse();
+		UserAuth userAuth=AuthUtils.getUserAuthData(request);
+		int brandId = Integer.valueOf(userAuth.getBrandId());
+	
+		
+		if(null == projectId || projectId.intValue()<=0){
+			return new ResponseEntity<FBRestResponse>(new FBRestResponse(false, "ProjectId is required field"),
+				    HttpStatus.BAD_REQUEST);
+		}
+		try{
+			response = pricingRuleService.getPricingRulesForProject(projectId,brandId);
+			if(!response.getSuccessFlag()){
+				return new ResponseEntity<FBRestResponse>(new FBRestResponse(false, "Exception Occured, Please check the log files"),
+					    HttpStatus.INTERNAL_SERVER_ERROR);
+			}else if(response.getPricingRules_Count() == 0){
+				response.setMessage("There are no Rules Created for the associated Project Id");
+				return new ResponseEntity<ProjectPricingRulesResponse>(response, HttpStatus.OK);
+			}
+			
+		}catch(SQLException e){
+			logger.error(e.getMessage(), e.fillInStackTrace());
+			e.printStackTrace();
+			return new ResponseEntity<FBRestResponse>(new FBRestResponse(true, "SQL exception occured"),
+				    HttpStatus.INTERNAL_SERVER_ERROR);
+		}catch(Exception e) {
+			logger.error(e.getMessage(), e.fillInStackTrace());
+			e.printStackTrace();
+			return new ResponseEntity<FBRestResponse>(new FBRestResponse(false, "Exception Occured, Please check the log files"),
+				    HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		return new ResponseEntity<FBRestResponse>(response,HttpStatus.OK);
 		
 	}
 

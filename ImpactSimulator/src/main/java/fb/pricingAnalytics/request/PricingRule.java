@@ -5,7 +5,7 @@ import java.math.BigInteger;
 import fb.pricingAnalytics.model.vo.MenuItem;
 import fb.pricingAnalytics.model.vo.StoreTier;
 
-public class PricingRuleRequest {
+public class PricingRule {
 	
 	private BigInteger projectId;
 	private String type;

@@ -9,8 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import fb.pricingAnalytics.dao.PricingRuleDao;
-import fb.pricingAnalytics.request.PricingRuleRequest;
-import fb.pricingAnalytics.response.PricingRulesResponse;
+import fb.pricingAnalytics.request.PricingRule;
+import fb.pricingAnalytics.response.ProjectPricingRulesResponse;
+import fb.pricingAnalytics.response.ScenarioPricingRulesResponse;
 import fb.pricingAnalytics.service.PricingRuleService;
 
 
@@ -23,17 +24,19 @@ public class PricingRuleServiceImpl implements PricingRuleService{
 
 	@Transactional
 	@Override
-	public BigInteger createPricingRule(PricingRuleRequest pricingRuleRequest,int brandId, String userName) throws SQLException, Exception {
+	public BigInteger createPricingRule(PricingRule pricingRuleRequest,int brandId, String userName) throws SQLException, Exception {
 		return pricingRuleDao.createPricingRule( pricingRuleRequest, brandId,  userName);
 	}
 
-	
-	
-	
 	@Transactional
 	@Override
-	public PricingRulesResponse getPricingRules(BigInteger projectId,int brandId) throws SQLException, Exception {
-		return pricingRuleDao.getPricingRules(projectId,brandId);
+	public ScenarioPricingRulesResponse getPricingRulesForScenario(BigInteger projectId,BigInteger scenarioId,int brandId) throws SQLException, Exception {
+		return pricingRuleDao.getPricingRulesForScenario(projectId,scenarioId,brandId);
+	}
+
+	@Override
+	public ProjectPricingRulesResponse getPricingRulesForProject(BigInteger projectId,int brandId) throws SQLException, Exception {
+		return pricingRuleDao.getPricingRulesForProject(projectId,brandId);
 	}
 
 }

@@ -34,14 +34,18 @@ import org.springframework.stereotype.Repository;
 
 
 
+
+
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import fb.pricingAnalytics.dao.PricingRuleDao;
 import fb.pricingAnalytics.model.PricingRule;
 import fb.pricingAnalytics.model.ScenarioPricingRule;
-import fb.pricingAnalytics.model.vo.PricingRuleVo;
-import fb.pricingAnalytics.request.PricingRuleRequest;
-import fb.pricingAnalytics.response.PricingRulesResponse;
+import fb.pricingAnalytics.model.vo.ProjectPricingRuleVo;
+import fb.pricingAnalytics.model.vo.ScenarioPricingRuleVo;
+import fb.pricingAnalytics.response.ProjectPricingRulesResponse;
+import fb.pricingAnalytics.response.ScenarioPricingRulesResponse;
 import fb.pricingAnalytics.utils.FBRestResponse;
 
 
@@ -54,11 +58,11 @@ public class PricingRuleDaoImpl implements PricingRuleDao{
 	EntityManager entityManager;
 
 	@Override
-	public BigInteger createPricingRule(PricingRuleRequest pricingRuleRequest,int brandId,String userName) throws SQLException, Exception {
+	public BigInteger createPricingRule(fb.pricingAnalytics.request.PricingRule pricingRuleRequest,int brandId,String userName) throws SQLException, Exception {
 		
 		
 		try{
-			PricingRule pricingRule = new PricingRule();
+			fb.pricingAnalytics.model.PricingRule pricingRule = new fb.pricingAnalytics.model.PricingRule();
 			
 			Session session =  entityManager.unwrap(Session.class);
 			pricingRule.setProjectId(pricingRuleRequest.getProjectId());
@@ -114,30 +118,60 @@ public class PricingRuleDaoImpl implements PricingRuleDao{
 	}
 
 	@Override
-	public PricingRulesResponse getPricingRules(BigInteger projectId,int brandId) throws SQLException, Exception {
+	public ScenarioPricingRulesResponse getPricingRulesForScenario(BigInteger projectId,BigInteger scenarioId,int brandId) throws SQLException, Exception {
 		
-		PricingRulesResponse response = new PricingRulesResponse();
+		ScenarioPricingRulesResponse response = new ScenarioPricingRulesResponse();
 		try{
 			StringBuilder sb =  new StringBuilder(" select spr.ruleId,spr.scenarioId,spr.isApplied,spr.isDeleted,pr.ruleData from ScenarioPricingRule spr "
 					+ "left join PricingRule pr on pr.ruleId = spr.ruleId where "
-					+ "pr.projectId = :project_Id and spr.isDeleted = 0 and spr.brandId=:brand_Id");
+					+ "pr.projectId = :project_Id and spr.scenarioId = :scenario_Id and spr.isDeleted = 0 and spr.brandId=:brand_Id");
 			Query query = entityManager.unwrap(Session.class).createQuery(sb.toString());
 			query.setParameter("brand_Id", brandId);
 			query.setParameter("project_Id", projectId);
+			query.setParameter("scenario_Id", scenarioId);
 			List<Object[]> rows = query.list();
 		
-			List<PricingRuleVo> result = new ArrayList<PricingRuleVo>(rows.size());
+			List<ScenarioPricingRuleVo> result = new ArrayList<ScenarioPricingRuleVo>(rows.size());
 			for (Object[] row : rows) {
-				PricingRuleRequest request = new ObjectMapper().readValue((String)row[4], PricingRuleRequest.class);
-				result.add(new PricingRuleVo((BigInteger)row[0],(BigInteger)row[1],(Boolean)row[2],(Boolean)row[3],request));
+				fb.pricingAnalytics.request.PricingRule request = new ObjectMapper().readValue((String)row[4], fb.pricingAnalytics.request.PricingRule.class);
+				result.add(new ScenarioPricingRuleVo((BigInteger)row[0],(BigInteger)row[1],(Boolean)row[2],(Boolean)row[3],request));
 			}
 			response.setPricingRules_Count(rows.size());
 			response.setPricingRuleVo(result);
 			response.setSuccessFlag(true);
 		}catch(Exception ex){
 			logger.debug("Exception occured inside while fetching Pricing Rules from DB");
-			return (PricingRulesResponse) new FBRestResponse(false,"Exception Occured while fetching data from DB");
+			return (ScenarioPricingRulesResponse) new FBRestResponse(false,"Exception Occured while fetching data from DB");
 		}
+		return response;
+	}
+
+
+
+	@Override
+	public ProjectPricingRulesResponse getPricingRulesForProject(BigInteger projectId, int brandId) {
+		
+		ProjectPricingRulesResponse   response = new ProjectPricingRulesResponse();
+		
+		try{
+		StringBuilder sb =  new StringBuilder("from PricingRule where ProjectId=:project_Id and BrandId=:brand_Id");
+		Query query = entityManager.unwrap(Session.class).createQuery(sb.toString());
+		query.setParameter("brand_Id", brandId);
+		query.setParameter("project_Id", projectId);
+		List<Object> rows = query.list();
+		List<ProjectPricingRuleVo> pricingRulesList = new ArrayList<ProjectPricingRuleVo>(rows.size());
+		for(Object row : rows){
+			PricingRule pricingRule = (PricingRule) row;
+			pricingRulesList.add(new ProjectPricingRuleVo(pricingRule.getRuleId(),new ObjectMapper().readValue(pricingRule.getRuleData(), fb.pricingAnalytics.request.PricingRule.class)));
+		}
+		response.setPricingRules_Count(rows.size());
+		response.setPricingRules(pricingRulesList);
+		response.setSuccessFlag(true);
+		}catch(Exception ex){
+			logger.debug("Exception occured inside while fetching Pricing Rules from DB");
+			return (ProjectPricingRulesResponse) new FBRestResponse(false,"Exception Occured while fetching Rules from DB");
+		}
+		
 		return response;
 	}
 
